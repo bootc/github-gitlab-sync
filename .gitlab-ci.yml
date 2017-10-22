@@ -17,7 +17,7 @@ build:
 git-sync:
   script:
     - eval `ssh-agent`
-    - echo "$PUSH_KEY" | ssh-add -
+    - echo "$PUSH_KEY" | base64 -d | ssh-add -
     - >-
       git sync-remote
         git@github.com:bootc/github-gitlab-sync.git
