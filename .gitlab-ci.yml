@@ -18,8 +18,8 @@ git-sync:
   variables:
     CI_DEBUG_TRACE: "true"
   script:
-    - eval `ssh-agent`
-    - echo "$PUSH_KEY" | base64 -d | ssh-add -
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$PUSH_KEY")
     - >-
       git sync-remote
         git@github.com:bootc/github-gitlab-sync.git
