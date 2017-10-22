@@ -5,7 +5,6 @@ stages:
 
 build:
   script:
-    - echo "$TEST_SECRET"
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker build -t ${CI_REGISTRY_IMAGE}:latest .
     - docker push ${CI_REGISTRY_IMAGE}:latest
@@ -16,8 +15,9 @@ build:
     - triggers
 
 git-sync:
+  variables:
+    CI_DEBUG_TRACE: "true"
   script:
-    - echo "$TEST_SECRET"
     - eval `ssh-agent`
     - echo "$PUSH_KEY" | base64 -d | ssh-add -
     - >-
