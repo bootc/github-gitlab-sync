@@ -1,5 +1,7 @@
 FROM debian:stretch
-RUN apt-get update && apt-get dist-upgrade && apt-get install -y \
+RUN apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y \
     git \
     openssh-client \
     && rm -rf /var/lib/apt/lists/*
