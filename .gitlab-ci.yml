@@ -1,6 +1,18 @@
 ---
 stages:
+  - build
   - Git Sync
+
+build:
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker build -t ${CI_REGISTRY_IMAGE}:latest .
+    - docker push ${CI_REGISTRY_IMAGE}:latest
+  stage: build
+  tags:
+    - docker-build
+  except:
+    - triggers
 
 git-sync:
   script:
@@ -11,8 +23,10 @@ git-sync:
         git@github.com:bootc/github-gitlab-sync.git
         git@git.boo.tc:bootc/github-gitlab-sync.git
   stage: Git Sync
-  image: ignoredambience/github-gitlab-sync
+  image: ${CI_REGISTRY_IMAGE}:latest
   tags:
     - docker
   only:
     - triggers
+
+# vim: ft=yaml:sts=2:expandtab:sw=2:ts=2
