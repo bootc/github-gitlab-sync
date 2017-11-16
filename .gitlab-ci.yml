@@ -23,8 +23,6 @@ git-sync:
         git@git.boo.tc:bootc/github-gitlab-sync.git
   stage: Git Sync
   image: ${CI_REGISTRY_IMAGE}:latest
-  tags:
-    - docker
   only:
     - triggers
 
