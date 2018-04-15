@@ -12,8 +12,8 @@ for branch in $(git for-each-ref --format '%(refname:short)' refs/heads); do
 done
 
 # Add and fetch remotes
-git remote add from $1  2>/dev/null || git remote set-url from $1
-git remote add to   $2  2>/dev/null || git remote set-url to   $2
+git remote add from "$1"  2>/dev/null || git remote set-url from "$1"
+git remote add to   "$2"  2>/dev/null || git remote set-url to   "$2"
 git fetch --multiple --prune from to
 
 # Create locals
