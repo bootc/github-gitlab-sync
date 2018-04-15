@@ -6,7 +6,8 @@ stages:
 build:
   stage: build
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - export DKR_IMAGE="$(echo $CI_PROJECT_PATH | tr '[:upper:]' '[:lower:]')"
+    - docker login -u="${QUAY_IO_USER}" -p="${QUAY_IO_PASSWORD}" quay.io
     - >-
       docker build
       --force-rm=true
@@ -14,9 +15,11 @@ build:
       --label=org.label-schema.vcs-ref="${CI_COMMIT_SHA}"
       --label=org.label-schema.vcs-url="${CI_PROJECT_URL}.git"
       --pull=true
-      -t ${CI_REGISTRY_IMAGE}:latest
+      -t quay.io/${DKR_IMAGE}:latest
+      -t quay.io/${DKR_IMAGE}:${CI_COMMIT_REF_NAME}
       .
-    - docker push ${CI_REGISTRY_IMAGE}:latest
+    - docker push quay.io/${DKR_IMAGE}:latest
+    - docker push quay.io/${DKR_IMAGE}:${CI_COMMIT_REF_NAME}
   only:
     - master
   except:
@@ -27,7 +30,7 @@ build:
 git-sync:
   script:
     - eval $(ssh-agent -s)
-    - ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
+    - echo "$SSH_PRIVATE_KEY" | base64 -d | ssh-add -
     - git sync-remote
         git@github.com:${CI_PROJECT_PATH}.git
         git@git.boo.tc:${CI_PROJECT_PATH}.git
