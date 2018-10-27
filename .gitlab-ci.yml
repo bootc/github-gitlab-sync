@@ -5,27 +5,25 @@ stages:
 
 build:
   stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
     - export DKR_IMAGE="$(echo $CI_PROJECT_PATH | tr '[:upper:]' '[:lower:]')"
-    - docker login -u="${QUAY_IO_USER}" -p="${QUAY_IO_PASSWORD}" quay.io
+    - mkdir -p /root/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /root/.docker/config.json
     - >-
-      docker build
-      --force-rm=true
-      --label=org.label-schema.build-date="$(date --utc --iso-8601=seconds)"
-      --label=org.label-schema.vcs-ref="${CI_COMMIT_SHA}"
-      --label=org.label-schema.vcs-url="${CI_PROJECT_URL}.git"
-      --pull=true
-      -t quay.io/${DKR_IMAGE}:latest
-      -t quay.io/${DKR_IMAGE}:${CI_COMMIT_REF_NAME}
-      .
-    - docker push quay.io/${DKR_IMAGE}:latest
-    - docker push quay.io/${DKR_IMAGE}:${CI_COMMIT_REF_NAME}
+      /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --reproducible
+      --build-arg=BUILD_DATE="$(date --utc +%Y-%m-%dT%H:%M:%SZ)"
+      --build-arg=VCS_REF=${CI_COMMIT_SHA}
+      --destination ${CI_REGISTRY_IMAGE}:latest
   only:
     - master
   except:
     - triggers
-  tags:
-    - docker-build
 
 git-sync:
   script:
@@ -35,7 +33,7 @@ git-sync:
         git@github.com:${CI_PROJECT_PATH}.git
         git@git.boo.tc:${CI_PROJECT_PATH}.git
   stage: git-sync
-  image: quay.io/bootc/github-gitlab-sync:latest
+  image: dkr.boo.tc/bootc/github-gitlab-sync:latest
   only:
     - triggers
 
