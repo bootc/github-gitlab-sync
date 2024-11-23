@@ -20,8 +20,8 @@ build:
       --context $CI_PROJECT_DIR
       --dockerfile $CI_PROJECT_DIR/Dockerfile
       --cache
-      --label org.opencontainers.image.created="$CREATED_DATE" \
-      --label org.opencontainers.image.revision="$CI_COMMIT_SHA" \
+      --label org.opencontainers.image.created="$CREATED_DATE"
+      --label org.opencontainers.image.revision="$CI_COMMIT_SHA"
       --destination ${CI_REGISTRY_IMAGE}:latest
   only:
     - master
