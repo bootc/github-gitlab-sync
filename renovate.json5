@@ -1,0 +1,22 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
+  extends: [
+    'config:best-practices',
+    ':automergeDigest',
+    ':automergeMinor',
+  ],
+
+  rangeStrategy: 'pin',
+
+  packageRules: [
+    {
+      // don't try to update ourselves
+      matchDepNames: [
+        'dkr.boo.tc/bootc/github-gitlab-sync',
+      ],
+      enabled: false,
+    },
+  ],
+
+}
