@@ -1,14 +1,13 @@
 #!/bin/sh
 
 # Terminate on first failure
-set -e
-
-errors=0
+set -ex
 
 # Delete existing branches
 git checkout --detach
-for branch in $(git for-each-ref --format '%(refname:short)' refs/heads); do
-  git branch -D $branch
+git for-each-ref --format '%(refname:short)' refs/heads |
+while read -r branch; do
+  git branch -D "$branch"
 done
 
 # Add and fetch remotes
@@ -17,19 +16,24 @@ git remote add to   "$2"  2>/dev/null || git remote set-url to   "$2"
 git fetch --multiple --prune from to
 
 # Create locals
-for pushfrom in $(git for-each-ref --format '%(refname)' refs/remotes/from); do
-  name="${pushfrom##refs/remotes/from/}"
-  pushto="refs/remotes/to/$name"
-  if ( ! git show-ref $pushto > /dev/null) || git merge-base --is-ancestor $pushto $pushfrom > /dev/null; then
-    git branch -f $name $pushfrom
-  else
-    echo "Failed to fast-forward $pushfrom to $pushto, relevant commits:"
-    git show-ref $name
-    errors=1
-  fi
-done
+git for-each-ref --format '%(refname)' refs/remotes/from |
+{
+  errors=0
 
-# Push to remotes
-git push --tags --follow-tags to refs/heads/*:refs/heads/*
+  while read -r pushfrom; do
+    name="${pushfrom##refs/remotes/from/}"
+    pushto="refs/remotes/to/$name"
+    if ( ! git show-ref "$pushto" > /dev/null) || git merge-base --is-ancestor "$pushto" "$pushfrom" > /dev/null; then
+      git branch -f "$name" "$pushfrom"
+    else
+      echo "Failed to fast-forward $pushfrom to $pushto, relevant commits:"
+      git show-ref "$name"
+      errors=1
+    fi
+  done
 
-exit $errors
+  # Push to remotes
+  git push --tags --follow-tags to refs/heads/*:refs/heads/*
+
+  exit $errors
+}
