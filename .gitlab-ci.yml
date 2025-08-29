@@ -9,7 +9,7 @@ stages:
 build:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.24.0-debug@sha256:2562c4fe551399514277ffff7dcca9a3b1628c4ea38cb017d7286dc6ea52f4cd
+    name: docker.io/martizih/kaniko:v1.25.3-debug@sha256:8b83fd187e889afba27d1dc1201bb2ec377ebba470fbcb615c148a16059722ab
     entrypoint: [""]
   script:
     - export DKR_IMAGE="$(echo $CI_PROJECT_PATH | tr '[:upper:]' '[:lower:]')"
