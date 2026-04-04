@@ -2,15 +2,15 @@
 include:
   - template: Workflows/Branch-Pipelines.gitlab-ci.yml
 
-stages:
-  - build
-  - git-sync
-
   - component: $CI_SERVER_FQDN/$CI_PROJECT_NAMESPACE/common-ci-templates/kaniko-multiarch@main
     inputs:
       image_tags: "${CI_COMMIT_SHORT_SHA} latest"
     rules:
       - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "trigger"
+
+stages:
+  - build
+  - git-sync
 
 git-sync:
   script:
